@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>First Party Isolation Test</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb" crossorigin="anonymous">
+    <style>
+</style>
+</head>
+<body>
+<div class="jumbotron">
+  <h1 class="display-3"><em>First Party Isolation</em> Test</h1>
+  <p class="lead">This websites tests First Party Isolation support in your browser.</p>
+  <hr class="my-4">
+  <p>It establishes a session and tests whether this session is retained in other websites opening the test.<br>Look at the <a href="https://github.com/mozfreddyb/test-firstpartyisolation">test source code</a> to find out more.</p>
+  <p class="lead">
+    <a class="btn btn-primary btn-lg" href="#" role="button" id="startButton">
+        Test my browser
+    </a>
+    <a class="btn btn-secondary btn-lg" href="https://addons.mozilla.org/en-US/firefox/addon/first-party-isolation/" role="button">
+        Get the Firefox Extension
+    </a>
+  </p>
+  <div class="alert d-none" role="alert">
+    First Party Isolation is
+    <span id="resulttext"></span>
+  </div>
+</div>
+<script>
+"use strict";
+function finalResult(x) {
+let rtext = document.getElementById('resulttext');
+    rtext.innerText = x ? "enabled" : "disabled";
+    rtext.parentNode.classList.add(x ? 'alert-success' : 'alert-warning');
+    rtext.parentNode.classList.remove("d-none");
+ /// ✔ U+2714 color: #155724; background-color: #d4edda;
+ /// ✘ U+2718 color: #856404; background-color: #fff3cd;
+
+}
+function testResult(name, data) {
+    //console.log(name, data);
+    //XXX this could be used for more tests,
+    // but for now, one is probably enough
+    console.log('date', localStorage.getItem('d'), data.d);
+    console.log('sid', localStorage.getItem('s'), data.s)
+    if (name == "ThirdPartyEmbedsInIframe") {
+        if ((localStorage.getItem('s') == data.s) &&
+         (localStorage.getItem('d') == data.d)) {
+            finalResult(false);
+        } else {
+            finalResult(true);
+        }
+    }
+};
+
+window.addEventListener('message', (ev) => {
+    //console.debug("message", ev);
+    try {
+        ev.source.top.close();
+        testResult('ThirdPartyEmbedsInIframe', ev.data);
+    } catch(e) { console.warn(e); };
+    try {
+        ev.source.close();
+        //testResult('Popup', o);
+    } catch(e) { console.warn(e); };
+})
+var tests = {
+    'ThirdPartyEmbedsInIframe': function ThirdPartyEmbedsInIframe() {
+        window.open('https://web.security.plumbing/fpi/');
+        // popup contains its own reporting/closing code
+    }
+};
+
+// initialize session
+var d,s;
+d=localStorage.getItem('d');
+s=localStorage.getItem('s');
+if (!s) {
+    s=Array.from(
+        crypto.getRandomValues(new Uint8Array(3))
+    ).map(
+        el => el.toString(16).padStart(2,0)
+    ).join("");
+    localStorage.setItem('d', (new Date()).toUTCString());
+    localStorage.setItem('s', s);
+}
+///////////////
+
+startButton.addEventListener('click', function() {
+    for (let test in tests) {
+        let testFunc = tests[test];
+        testFunc();
+    }
+});
+
+</script>
+</body></html>

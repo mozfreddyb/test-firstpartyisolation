@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>JavaScript Session Test</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+body {
+    font-size: 1em;
+    line-height: 1.5em;
+    margin: 0.1em auto;
+    max-width: 35em;
+}
+#c {
+    width: 40px;
+    height: 40px;
+    }
+    </style>
+</head>
+<body>
+<div id="c">&nbsp;</div>
+<span id="s"></span><br>
+<span id="d"></span></h1>
+<script>
+"use strict";
+var d,s;
+d=localStorage.getItem('d');
+s=localStorage.getItem('s');
+if (!s) {
+    s=Array.from(
+        crypto.getRandomValues(new Uint8Array(3))
+    ).map(
+        el => el.toString(16).padStart(2,0)
+    ).join("");
+    localStorage.setItem('d', (new Date()).toUTCString());
+    localStorage.setItem('s', s);
+}
+
+function $(id) { return document.getElementById(id) || {}; }
+$('s').textContent=s;
+$('c').style.backgroundColor='#'+s;
+$('d').textContent= d ? 'From '+d : 'new' ;
+
+let o = {s: s, d: d};
+if (window!==top) {
+    top.postMessage(o, '*');
+    if (top.opener) { top.opener.postMessage(o, '*'); }
+}
+if (opener) { opener.postMessage(o, '*') }
+
+</script>
+</body></html>
