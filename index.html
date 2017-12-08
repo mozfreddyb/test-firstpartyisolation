@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>First Party Isolation Test</title>
     <meta charset="utf-8" />
+    <title>First Party Isolation Test</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb" crossorigin="anonymous">
     <style>
@@ -36,7 +36,6 @@ let rtext = document.getElementById('resulttext');
     rtext.parentNode.classList.remove("d-none");
  /// ✔ U+2714 color: #155724; background-color: #d4edda;
  /// ✘ U+2718 color: #856404; background-color: #fff3cd;
-
 }
 function testResult(name, data) {
     //console.log(name, data);
@@ -54,7 +53,7 @@ function testResult(name, data) {
     }
 };
 
-window.addEventListener('message', (ev) => {
+window.addEventListener('message', function(ev) {
     //console.debug("message", ev);
     try {
         ev.source.top.close();
@@ -72,27 +71,33 @@ var tests = {
     }
 };
 
-// initialize session
-var d,s;
-d=localStorage.getItem('d');
-s=localStorage.getItem('s');
-if (!s) {
-    s=Array.from(
-        crypto.getRandomValues(new Uint8Array(3))
-    ).map(
-        el => el.toString(16).padStart(2,0)
-    ).join("");
-    localStorage.setItem('d', (new Date()).toUTCString());
-    localStorage.setItem('s', s);
-}
-///////////////
-
-startButton.addEventListener('click', function() {
-    for (let test in tests) {
-        let testFunc = tests[test];
-        testFunc();
+// block out IE.
+if (navigator.userAgent.match(/Trident/)) {
+    finalResult(false);
+} else {
+    // initialize session
+    var d,s;
+    d=localStorage.getItem('d');
+    s=localStorage.getItem('s');
+    if (!s) {
+        let crypto = window.crypto || window.msCrypto;
+        s=Array.from(
+            crypto.getRandomValues(new Uint8Array(3))
+        ).map(
+            function(el) { return el.toString(16).padStart(2,0) }
+        ).join("");
+        localStorage.setItem('d', (new Date()).toUTCString());
+        localStorage.setItem('s', s);
     }
-});
+    ///////////////
+
+    startButton.addEventListener('click', function() {
+        for (let test in tests) {
+            let testFunc = tests[test];
+            testFunc();
+        }
+    });
+}
 
 </script>
 </body></html>
