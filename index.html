@@ -95,9 +95,8 @@ if (navigator.userAgent.match(/Trident/)) {
         try {
             localStorage.setItem('d', (new Date()).toUTCString());
             localStorage.setItem('s', s);
-            document.cookie = JSON.stringify({d: d, s: s});
         } catch(e) {
-            console.error('Exception when storing in localStorage', e);
+            document.cookie = JSON.stringify({d: d, s: s});
         }
     }
     ///////////////

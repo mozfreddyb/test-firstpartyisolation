@@ -38,9 +38,12 @@ if (!s) {
     ).map(
         el => el.toString(16).padStart(2,0)
     ).join("");
-    localStorage.setItem('d', (new Date()).toUTCString());
-    localStorage.setItem('s', s);
-    document.cookie = JSON.stringify({d: d, s: s});
+        try {
+            localStorage.setItem('d', (new Date()).toUTCString());
+            localStorage.setItem('s', s);
+        } catch(e) {
+            document.cookie = JSON.stringify({d: d, s: s});
+        }
 }
 
 function $(id) { return document.getElementById(id) || {}; }
