@@ -4,9 +4,8 @@
     <meta charset="utf-8" />
     <title>First Party Isolation Test</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="storage.js"></script>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb" crossorigin="anonymous">
-    <style>
-</style>
 </head>
 <body>
 <div class="jumbotron">
@@ -41,11 +40,11 @@ function testResult(name, data) {
     //console.log(name, data);
     //XXX this could be used for more tests,
     // but for now, one is probably enough
-    console.log('date', localStorage.getItem('d'), data.d);
-    console.log('sid', localStorage.getItem('s'), data.s)
+    console.log('date', o.d, data.d);
+    console.log('sid', o.s, data.s)
     if (name == "ThirdPartyEmbedsInIframe") {
-        if ((localStorage.getItem('s') == data.s) &&
-         (localStorage.getItem('d') == data.d)) {
+        if ((o.s == data.s) &&
+         (o.d == data.d)) {
             finalResult(false);
         } else {
             finalResult(true);
@@ -76,28 +75,16 @@ if (navigator.userAgent.match(/Trident/)) {
     finalResult(false);
 } else {
     // initialize session
-    var d,s,o;
-    try {
-        d=localStorage.getItem('d');
-        s=localStorage.getItem('s');
-    } catch(e) {
-        o = JSON.parse(document.cookie);
-        if (!d) { d = o.d; }
-        if (!s) { d = o.s; }
-    }
-    if (!s) {
-        let crypto = window.crypto || window.msCrypto;
-        s=Array.from(
-            crypto.getRandomValues(new Uint8Array(3))
-        ).map(
-            function(el) { return el.toString(16).padStart(2,0) }
-        ).join("");
-        try {
-            localStorage.setItem('d', (new Date()).toUTCString());
-            localStorage.setItem('s', s);
-        } catch(e) {
-            document.cookie = JSON.stringify({d: d, s: s});
-        }
+    var o;
+    o = retr();
+    if (!o) {
+        o = {
+            d: (new Date()).toUTCString(),
+            s: Array.from(crypto.getRandomValues(new Uint8Array(3))).map(
+                    el => el.toString(16).padStart(2,0)
+                ).join(""),
+        };
+        stor(o);
     }
     ///////////////
 

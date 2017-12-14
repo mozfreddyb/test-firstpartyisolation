@@ -4,6 +4,7 @@
     <title>JavaScript Session Test</title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="storage.js"></script>
     <style>
 body {
     font-size: 1em;
@@ -18,40 +19,28 @@ body {
     </style>
 </head>
 <body>
-<div id="c">&nbsp;</div>
-<span id="s"></span><br>
-<span id="d"></span>
+<div id="color">&nbsp;</div>
+<span id="sessionid"></span><br>
+<span id="date"></span>
 <script>
 "use strict";
-var d,s,o;
-try {
-    d=localStorage.getItem('d');
-    s=localStorage.getItem('s');
-    } catch(e) {
-    o = JSON.parse(document.cookie);
-    if (!d) { d = o.d; }
-    if (!s) { d = o.s; }
-}
-if (!s) {
-    s=Array.from(
-        crypto.getRandomValues(new Uint8Array(3))
-    ).map(
-        el => el.toString(16).padStart(2,0)
-    ).join("");
-        try {
-            localStorage.setItem('d', (new Date()).toUTCString());
-            localStorage.setItem('s', s);
-        } catch(e) {
-            document.cookie = JSON.stringify({d: d, s: s});
-        }
+let o;
+o = retr();
+if (!o) {
+    o = {
+        d: (new Date()).toUTCString(),
+        s: Array.from(crypto.getRandomValues(new Uint8Array(3))).map(
+                el => el.toString(16).padStart(2,0)
+            ).join(""),
+    };
+    stor(o);
 }
 
 function $(id) { return document.getElementById(id) || {}; }
-$('s').textContent=s;
-$('c').style.backgroundColor='#'+s;
-$('d').textContent= d ? 'From '+d : 'new' ;
+$('sessionid').textContent=o.s;
+$('color').style.backgroundColor='#'+o.s;
+$('date').textContent= o.d ? 'From '+o.d : 'new' ;
 
-let o = {s: s, d: d};
 if (window!==top) {
     top.postMessage(o, '*');
     if (top.opener) { top.opener.postMessage(o, '*'); }
