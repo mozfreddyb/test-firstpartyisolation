@@ -76,9 +76,15 @@ if (navigator.userAgent.match(/Trident/)) {
     finalResult(false);
 } else {
     // initialize session
-    var d,s;
-    d=localStorage.getItem('d');
-    s=localStorage.getItem('s');
+    var d,s,o;
+    try {
+        d=localStorage.getItem('d');
+        s=localStorage.getItem('s');
+    } catch(e) {
+        o = JSON.parse(document.cookie);
+        if (!d) { d = o.d; }
+        if (!s) { d = o.s; }
+    }
     if (!s) {
         let crypto = window.crypto || window.msCrypto;
         s=Array.from(
@@ -86,8 +92,13 @@ if (navigator.userAgent.match(/Trident/)) {
         ).map(
             function(el) { return el.toString(16).padStart(2,0) }
         ).join("");
-        localStorage.setItem('d', (new Date()).toUTCString());
-        localStorage.setItem('s', s);
+        try {
+            localStorage.setItem('d', (new Date()).toUTCString());
+            localStorage.setItem('s', s);
+            document.cookie = JSON.stringify({d: d, s: s});
+        } catch(e) {
+            console.error('Exception when storing in localStorage', e);
+        }
     }
     ///////////////
 

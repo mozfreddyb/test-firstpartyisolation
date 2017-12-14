@@ -20,12 +20,18 @@ body {
 <body>
 <div id="c">&nbsp;</div>
 <span id="s"></span><br>
-<span id="d"></span></h1>
+<span id="d"></span>
 <script>
 "use strict";
-var d,s;
-d=localStorage.getItem('d');
-s=localStorage.getItem('s');
+var d,s,o;
+try {
+    d=localStorage.getItem('d');
+    s=localStorage.getItem('s');
+    } catch(e) {
+    o = JSON.parse(document.cookie);
+    if (!d) { d = o.d; }
+    if (!s) { d = o.s; }
+}
 if (!s) {
     s=Array.from(
         crypto.getRandomValues(new Uint8Array(3))
@@ -34,6 +40,7 @@ if (!s) {
     ).join("");
     localStorage.setItem('d', (new Date()).toUTCString());
     localStorage.setItem('s', s);
+    document.cookie = JSON.stringify({d: d, s: s});
 }
 
 function $(id) { return document.getElementById(id) || {}; }
